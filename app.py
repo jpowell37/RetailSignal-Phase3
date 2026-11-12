@@ -82,33 +82,182 @@ if st.session_state["page"] == "home":
 
     st.title("RetailSignal")
 
-    st.subheader(
-        "E-Commerce Market Opportunity & Profitability Intelligence System"
-    )
+    
 
     st.write(
         "Discover promising products, evaluate financial feasibility, "
         "and make informed investment decisions before committing capital."
     )
 
-    st.divider()
+    
+    
+    # ============================================
+    # RETAILSIGNAL - LUXURY FINTECH HOMEPAGE
+    # ============================================
 
-    st.write("### How would you like to begin?")
+    st.markdown(
+        "".join([
+            '<div style="background:linear-gradient(135deg,#FFFFFF,#EEF7F4);'
+            'border:1px solid #DCE8E3;border-radius:24px;'
+            'padding:60px 30px;text-align:center;'
+            'box-shadow:0 12px 35px rgba(23,50,77,0.06);'
+            'margin:20px 0 25px 0;">',
 
-    col1, col2 = st.columns(2)
+            '<div style="color:#247C87;font-size:12px;'
+            'font-weight:700;letter-spacing:3px;'
+            'margin-bottom:20px;">'
+            'RETAILSIGNAL | COMMERCE INTELLIGENCE'
+            '</div>',
 
+            '<div style="color:#17324D;font-size:44px;'
+            'font-weight:800;line-height:1.2;'
+            'margin-bottom:18px;">'
+            'Know the opportunity.'
+            '<div style="color:#247C87;">'
+            'Understand the risk.'
+            '</div>'
+            '</div>',
+
+            '<div style="color:#64748B;font-size:17px;'
+            'line-height:1.7;max-width:680px;'
+            'margin:0 auto 25px auto;">'
+            'Discover potential e-commerce opportunities, '
+            'evaluate financial feasibility, compare supplier '
+            'commitments, and validate customer demand '
+            'before investing.'
+            '</div>',
+
+            '<div style="background:#C5A46D;width:75px;'
+            'height:3px;border-radius:10px;'
+            'margin:25px auto;"></div>',
+
+            '<div style="color:#17324D;font-size:16px;'
+            'font-weight:600;">'
+            'Choose how to begin your analysis'
+            '</div>',
+
+            '</div>'
+        ]),
+        unsafe_allow_html=True,
+    )
+
+    # ============================================
+    # NAVIGATION BUTTONS
+    # ============================================
+
+    col1, col2 = st.columns(2, gap="medium")
 
     with col1:
-        if st.button("Discover Opportunities", use_container_width=True):
+        if st.button(
+            "Discover Opportunities",
+            use_container_width=True,
+            key="home_discover",
+        ):
             st.session_state["page"] = "discover"
             st.rerun()
 
-
-
     with col2:
-        if st.button("Evaluate My Idea", use_container_width=True):
+        if st.button(
+            "Evaluate My Idea",
+            use_container_width=True,
+            key="home_evaluate",
+        ):
             st.session_state["page"] = "evaluate"
             st.rerun()
+
+    # ============================================
+    # PLATFORM FEATURES
+    # ============================================
+
+    st.markdown(
+        "".join([
+            '<div style="text-align:center;'
+            'padding:45px 10px 25px;">',
+
+            '<div style="color:#247C87;font-size:12px;'
+            'font-weight:700;letter-spacing:2px;">'
+            'THE RETAILSIGNAL ADVANTAGE'
+            '</div>',
+
+            '<div style="color:#17324D;font-size:29px;'
+            'font-weight:750;margin-top:12px;">'
+            'Intelligence for better business decisions'
+            '</div>',
+
+            '<div style="color:#64748B;font-size:15px;'
+            'margin-top:12px;">'
+            'A structured approach to discovering, '
+            'analyzing, and validating product opportunities.'
+            '</div>',
+
+            '</div>'
+        ]),
+        unsafe_allow_html=True,
+    )
+
+    
+    # THREE PLATFORM FEATURE CARDS
+
+    feature_col1, feature_col2, feature_col3 = st.columns(3, gap="medium")
+
+    with feature_col1:
+        with st.container(border=True):
+            st.caption("01 / DISCOVER")
+            st.markdown("### Market Opportunities")
+            st.write(
+                "Explore illustrative product opportunities "
+                "based on your business goals and available capital."
+            )
+
+    with feature_col2:
+        with st.container(border=True):
+            st.caption("02 / ANALYZE")
+            st.markdown("### Financial Intelligence")
+            st.write(
+                "Compare supplier commitments, contribution "
+                "margins, and startup capital requirements."
+            )
+
+    with feature_col3:
+        with st.container(border=True):
+            st.caption("03 / VALIDATE")
+            st.markdown("### Investment Readiness")
+            st.write(
+                "Review demand-test evidence, identify "
+                "potential risks, and explore recommended next steps."
+            )
+
+
+    # ============================================
+    # PROTOTYPE NOTICE
+    # ============================================
+
+    st.markdown(
+        "".join([
+            '<div style="text-align:center;'
+            'padding:30px 15px;'
+            'color:#7A8794;font-size:12px;">'
+            'Academic prototype | Illustrative data '
+            'and rule-based recommendations. '
+            'Not financial or investment advice.'
+            '</div>'
+        ]),
+        unsafe_allow_html=True,
+    )
+
+
+
+    
+
+    
+
+    
+
+
+
+
+
+    
 
            
 
