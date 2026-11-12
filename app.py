@@ -266,438 +266,747 @@ if st.session_state["page"] == "home":
 
 
 
+
+# ==========================================================
+# RETAILSIGNAL — DISCOVER OPPORTUNITIES DASHBOARD
+# ==========================================================
+
 if st.session_state.get("page") == "discover":
-    st.divider()
-    st.header("Entrepreneur Discovery Assessment")
+
+    st.markdown(
+        '<div style="color:#247C87;font-size:12px;'
+        'font-weight:700;letter-spacing:2px;">'
+        'RETAILSIGNAL / MARKET INTELLIGENCE</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.title("Discover Opportunities")
 
     st.write(
-        "Let's explore potential product opportunities based on "
-        "your interests, available capital, and business goals."
+        "Explore potential e-commerce products, assess startup "
+        "requirements, and review financial and demand evidence "
+        "before committing capital."
     )
 
-    st.subheader("Your Product Interests")
+    st.divider()
 
-    interest = st.selectbox(
-        "Which product category interests you most?",
-        [
-            "Select a category",
-            "Beauty & Personal Care",
-            "Fashion & Accessories",
-            "Home & Lifestyle",
-            "Other Consumer Products"
-        ]
+    # ------------------------------------------------------
+    # ENTREPRENEUR DISCOVERY ASSESSMENT
+    # ------------------------------------------------------
+
+    st.subheader("Your Business Profile")
+
+    st.caption(
+        "Start with your interests, available capital, "
+        "and primary business objective."
     )
 
-    st.subheader("Available Startup Capital")
+    with st.container(border=True):
 
-    capital = st.number_input(
-        "How much money do you have available to invest?",
-        min_value=0.0,
-        value=1500.0,
-        step=100.0,
-        format="%.2f"
-    )
+        profile_col1, profile_col2 = st.columns(2)
 
-    st.subheader("Your Business Goals")
+        with profile_col1:
+            interest = st.selectbox(
+                "Product Category",
+                [
+                    "Select a category",
+                    "Beauty & Personal Care",
+                    "Fashion & Accessories",
+                    "Home & Lifestyle",
+                    "Other Consumer Products",
+                ],
+                key="discover_interest",
+            )
 
-    goal = st.selectbox(
-        "What is your primary business goal?",
-        [
-            "Select a goal",
-            "Discover a promising product opportunity",
-            "Validate demand before investing",
-            "Launch a small e-commerce business",
-            "Evaluate an existing product idea"
-        ]
-    )
+        with profile_col2:
+            capital = st.number_input(
+                "Available Startup Capital ($)",
+                min_value=0.0,
+                value=1500.0,
+                step=100.0,
+                format="%.2f",
+                key="discover_capital",
+            )
 
-    if st.button("Analyze Opportunities", type="primary"):
-        if interest == "Select a category" or goal == "Select a goal":
-            st.warning("Please select a product category and business goal.")
+        goal = st.selectbox(
+            "Primary Business Goal",
+            [
+                "Select a goal",
+                "Discover a promising product opportunity",
+                "Validate demand before investing",
+                "Launch a small e-commerce business",
+                "Evaluate an existing product idea",
+            ],
+            key="discover_goal",
+        )
+
+        analyze = st.button(
+            "Analyze Opportunities",
+            type="primary",
+            use_container_width=True,
+            key="discover_analyze",
+        )
+
+    # ------------------------------------------------------
+    # OPPORTUNITY RESULTS
+    # ------------------------------------------------------
+
+    if analyze:
+
+        if (
+            interest == "Select a category"
+            or goal == "Select a goal"
+        ):
+            st.warning(
+                "Please select a product category and business goal."
+            )
+
         else:
-            
+
             matching_products = [
-                product for product in sample_products
+                product
+                for product in sample_products
                 if product["category"] == interest
             ]
 
-            st.subheader("Potential Product Opportunities")
+            st.divider()
 
-            
-            if matching_products:
-                for product in matching_products:
-                    st.write(product["product"])
+            st.markdown(
+                '<div style="color:#247C87;font-size:12px;'
+                'font-weight:700;letter-spacing:2px;">'
+                'OPPORTUNITY INTELLIGENCE</div>',
+                unsafe_allow_html=True,
+            )
 
-                    
-                    selling_price = product.get("estimated_selling_price")
+            st.subheader("Your Product Opportunities")
 
-                    if selling_price is None:
-                        st.warning(
-                            "INSUFFICIENT DATA — A proposed selling price "
-                            "is required before profitability can be evaluated."
-                        )
+            st.caption(
+                "Results use illustrative product data and "
+                "preliminary rule-based assessments."
+            )
 
-                    if selling_price is not None:
-                        st.write(
-                            f"Proposed selling price: ${selling_price:,.2f}"
-                        )
-                    
-                    if selling_price is not None:
-                        other_variable_cost = product.get(
-                            "other_variable_cost_per_sale", 0
-                        )
+            if not matching_products:
+                st.info(
+                    "No sample products are currently available "
+                    "for this category."
+                )
 
-                        
+            for product in matching_products:
 
-                        total_variable_cost = (
-                            product["estimated_unit_cost"]
-                            + product.get("packaging_cost_per_unit", 0)
-                            + other_variable_cost
-                        )
+                product_name = product["product"]
 
-                        contribution_margin = selling_price - total_variable_cost
+                unit_cost = product["estimated_unit_cost"]
 
-                        if selling_price > 0:
-                            contribution_margin_ratio = (
-                                contribution_margin / selling_price
-                            ) * 100
+                moq = product["minimum_order_quantity"]
 
-                            st.write(
-                                f"Estimated contribution margin ratio: {contribution_margin_ratio:.1f}%"
-                            )
-                        else:
-                            st.warning(
-                                "A selling price above $0 is required "
-                                "to calculate the contribution margin ratio."
-                            )
+                packaging_unit = product.get(
+                    "packaging_cost_per_unit", 0
+                )
 
-                        st.write(
-                            f"Estimated variable expenses per sale: ${total_variable_cost:,.2f}"
-                        )
+                selling_price = product.get(
+                    "estimated_selling_price"
+                )
 
-                        st.write(
-                            f"Estimated contribution margin per sale: ${contribution_margin:,.2f}"
-                        )
+                other_variable_cost = product.get(
+                    "other_variable_cost_per_sale", 0
+                )
 
-                        if contribution_margin <= 0:
-                            st.error(
-                                "Financial Risk: Estimated variable expenses "
-                                "equal or exceed the selling price. Review "
-                                "pricing and costs before proceeding."
-                            )
-                        else:
-                            st.info(
-                                "Estimated sales revenue exceeds variable "
-                                "expenses. However, a positive contribution "
-                                "margin does not establish profitability. "
-                                "Fixed costs and consumer demand still "
-                                "require evaluation."
-                            )
+                test_visitors = product.get("test_visitors")
 
-                    inventory_cost = (
-                        product["estimated_unit_cost"]
-                        * product["minimum_order_quantity"]
+                test_paid_orders = product.get(
+                    "test_paid_orders"
+                )
+
+                test_spend = product.get("test_spend")
+
+                # ------------------------------------------
+                # FINANCIAL CALCULATIONS
+                # ------------------------------------------
+
+                inventory_cost = unit_cost * moq
+
+                packaging_cost = packaging_unit * moq
+
+                initial_commitment = (
+                    inventory_cost + packaging_cost
+                )
+
+                remaining_capital = (
+                    capital - initial_commitment
+                )
+
+                if selling_price is not None:
+
+                    variable_cost = (
+                        unit_cost
+                        + packaging_unit
+                        + other_variable_cost
                     )
 
-                    
-                    packaging_cost = (
-                        product.get("packaging_cost_per_unit", 0)
-                        * product["minimum_order_quantity"]
+                    contribution_margin = (
+                        selling_price - variable_cost
                     )
 
-                    total_initial_commitment = inventory_cost + packaging_cost
-
-                    remaining_capital = capital - total_initial_commitment
-
-                    test_visitors = product.get("test_visitors")
-                    test_spend = product.get("test_spend")
-                    test_paid_orders = product.get("test_paid_orders")
-
-                    if test_visitors is None or test_paid_orders is None:
-                        st.warning(
-                            "INSUFFICIENT DATA — Demand-test results are "
-                            "not available. Purchasing demand cannot yet "
-                            "be evaluated."
-                        )
-
-                    total_initial_commitment = inventory_cost + packaging_cost
-                    if (
-                        test_visitors is not None
-                        and test_paid_orders is not None
-                        and test_visitors > 0
-                    ):
-                        conversion_rate = (
-                            test_paid_orders / test_visitors
+                    if selling_price > 0:
+                        margin_ratio = (
+                            contribution_margin
+                            / selling_price
                         ) * 100
+                    else:
+                        margin_ratio = None
 
-                        st.subheader("Demand Validation Results")
-                        st.write(
-                            f"Test visitors: {test_visitors}"
-                        )
-                        st.write(
-                            f"Reported paid orders: {test_paid_orders}"
-                        )
-                        st.write(
-                            f"Observed conversion rate: {conversion_rate:.1f}%"
-                        )
+                else:
+                    variable_cost = None
+                    contribution_margin = None
+                    margin_ratio = None
 
-                        if test_paid_orders == 0:
-                            st.warning(
-                                "Demand Risk: No paid orders were reported "
-                                "during this limited test. Consider revising "
-                                "the offer or testing again before purchasing inventory."
-                            )
-                        else:
-                            st.info(
-                                "Paid orders were reported during the test. "
-                                "Additional validation is still needed before "
-                                "making an inventory investment."
-                            )
+                if (
+                    test_visitors is not None
+                    and test_paid_orders is not None
+                    and test_visitors > 0
+                ):
+                    conversion_rate = (
+                        test_paid_orders / test_visitors
+                    ) * 100
+                else:
+                    conversion_rate = None
 
-                        st.subheader("Preliminary Recommendation")
+                # ------------------------------------------
+                # PRODUCT OVERVIEW
+                # ------------------------------------------
 
-                        
-                        risk_reasons = []
+                with st.container(border=True):
 
-                        if remaining_capital < 0:
-                            risk_reasons.append(
-                                "The initial inventory and packaging commitment "
-                                "exceeds available startup capital."
-                            )
+                    st.caption("PRODUCT OPPORTUNITY")
 
-                        if contribution_margin <= 0:
-                            risk_reasons.append(
-                                "Estimated variable expenses equal or exceed "
-                                "the proposed selling price."
-                            )
-
-                        if test_paid_orders == 0:
-                            risk_reasons.append(
-                                "The demand test reported no paid orders."
-                            )
-
-                        if (
-                            test_paid_orders == 0
-                            or remaining_capital < 0
-                            or contribution_margin <= 0
-                        ):
-
-                            
-                            st.error(
-                                "NOT READY — One or more financial or demand "
-                                "risks require attention. Review available "
-                                "capital, contribution margin, and paid-order "
-                                "evidence before committing to inventory."
-                            )
-
-                            st.write("**Identified Risk Factors:**")
-
-                            for reason in risk_reasons:
-                                st.write(f"• {reason}")
-
-                        
-                        elif test_visitors >= 100 and test_paid_orders >= 10:
-                            st.success(
-                                "PROMISING — Preliminary financial screening "
-                                "and illustrative demand criteria are met. "
-                                "Consider a small controlled pilot after "
-                                "verifying supplier costs and demand evidence."
-                            )
-                        else:
-
-                            
-                            st.info(
-                                "POTENTIAL — Initial financial screening "
-                                "has passed, and the test reported paid orders. "
-                                "However, additional evidence is needed before "
-                                "making an inventory investment."
-                            )
-
-
-                        if test_spend is not None:
-                            st.write(
-                                f"Demand test spending: ${test_spend:,.2f}"
-                            )
+                    st.subheader(product_name)
 
                     st.write(
-                        f"Estimated initial inventory cost: ${inventory_cost:,.2f}"
+                        f"**Category:** {product['category']}"
                     )
 
-                    st.write(
-                        f"Estimated packaging cost: ${packaging_cost:,.2f}"
-                    )
+                    st.divider()
 
-                    st.write(
-                        f"Total initial inventory and packaging commitment: ${total_initial_commitment:,.2f}"
-                    )
+                    st.markdown("#### Financial Overview")
 
-                    
-                    remaining_capital = capital - total_initial_commitment
+                    metric1, metric2, metric3 = st.columns(3)
 
+                    with metric1:
+                        st.metric(
+                            "Initial Commitment",
+                            f"${initial_commitment:,.2f}",
+                        )
+
+                    with metric2:
+                        st.metric(
+                            "Capital Remaining",
+                            f"${remaining_capital:,.2f}",
+                        )
+
+                    with metric3:
+                        st.metric(
+                            "Minimum Order",
+                            f"{moq:,} units",
+                        )
+
+                    st.markdown("#### Capital Utilization")
 
                     if capital > 0:
-                       
-                        budget_utilization = (total_initial_commitment / capital) * 100
 
-                        st.write(
-                            
-f"Inventory and Packaging Budget Utilization: {budget_utilization:.1f}%"
+                        utilization = (
+                            initial_commitment / capital
+                        ) * 100
 
+                        st.progress(
+                            min(utilization / 100, 1.0)
                         )
-                        
-                        st.progress(min(total_initial_commitment / capital, 1.0))
+
+                        st.caption(
+                            f"{utilization:.1f}% of available "
+                            "startup capital would be committed "
+                            "to initial inventory and packaging."
+                        )
 
                     else:
                         st.warning(
-                            "Budget utilization cannot be calculated "
-                            "because available startup capital is $0."
+                            "Capital utilization cannot be "
+                            "calculated with $0 startup capital."
                         )
 
-                    st.write(
-                        f"Available startup capital: ${capital:,.2f}"
-                    )
+                    st.divider()
 
-                    st.write(
-                        
-f"Remaining capital after inventory and packaging: ${remaining_capital:,.2f}"
+                    # --------------------------------------
+                    # COST BREAKDOWN
+                    # --------------------------------------
 
-                    )
+                    st.markdown("#### Product Cost Analysis")
 
-                    
-                    if remaining_capital < 0:
-                        st.error(
-                            "The estimated inventory and packaging commitment "
-                            "exceeds your available startup capital. Consider "
-                            "reducing costs, negotiating a lower minimum order "
-                            "quantity, or evaluating another opportunity."
+                    cost_col1, cost_col2 = st.columns(2)
+
+                    with cost_col1:
+                        st.write(
+                            f"**Supplier Cost per Unit:** "
+                            f"${unit_cost:,.2f}"
                         )
+
+                        st.write(
+                            f"**Inventory Cost:** "
+                            f"${inventory_cost:,.2f}"
+                        )
+
+                    with cost_col2:
+                        st.write(
+                            f"**Packaging per Unit:** "
+                            f"${packaging_unit:,.2f}"
+                        )
+
+                        st.write(
+                            f"**Total Packaging Cost:** "
+                            f"${packaging_cost:,.2f}"
+                        )
+
+                    if selling_price is not None:
+
+                        st.divider()
+
+                        st.markdown(
+                            "#### Profitability Indicators"
+                        )
+
+                        profit_col1, profit_col2 = st.columns(2)
+
+                        with profit_col1:
+                            st.metric(
+                                "Proposed Selling Price",
+                                f"${selling_price:,.2f}",
+                            )
+
+                        with profit_col2:
+                            st.metric(
+                                "Contribution Margin / Sale",
+                                f"${contribution_margin:,.2f}",
+                            )
+
+                        st.write(
+                            f"**Variable Expenses per Sale:** "
+                            f"${variable_cost:,.2f}"
+                        )
+
+                        if margin_ratio is not None:
+                            st.write(
+                                f"**Contribution Margin Ratio:** "
+                                f"{margin_ratio:.1f}%"
+                            )
+                        else:
+                            st.warning(
+                                "A selling price above $0 is "
+                                "required to calculate the margin ratio."
+                            )
+
+                        st.caption(
+                            "Contribution margin excludes fixed "
+                            "expenses and does not guarantee profit."
+                        )
+
                     else:
-                        st.info(
-                            "The estimated inventory and packaging commitment "
-                            "fits within your available capital. However, "
-                            "shipping, marketing, selling expenses, and "
-                            "consumer demand still require evaluation."
+                        st.warning(
+                            "INSUFFICIENT DATA — A proposed selling "
+                            "price is needed for profitability analysis."
                         )
 
+                    st.divider()
 
-            else:
-                st.info("No sample products are available for this category.")
+                    # --------------------------------------
+                    # DEMAND VALIDATION
+                    # --------------------------------------
 
+                    st.markdown("#### Demand Validation")
 
-    if st.button("Return to Home"):
+                    if conversion_rate is not None:
+
+                        demand1, demand2, demand3 = st.columns(3)
+
+                        with demand1:
+                            st.metric(
+                                "Test Visitors",
+                                f"{test_visitors:,}",
+                            )
+
+                        with demand2:
+                            st.metric(
+                                "Paid Orders",
+                                f"{test_paid_orders:,}",
+                            )
+
+                        with demand3:
+                            st.metric(
+                                "Conversion Rate",
+                                f"{conversion_rate:.1f}%",
+                            )
+
+                        if test_spend is not None:
+                            st.caption(
+                                f"Reported demand-test spending: "
+                                f"${test_spend:,.2f}"
+                            )
+
+                    else:
+                        st.warning(
+                            "INSUFFICIENT DATA — Usable demand-test "
+                            "results are not available."
+                        )
+
+                    st.divider()
+
+                    # --------------------------------------
+                    # INVESTMENT READINESS ASSESSMENT
+                    # --------------------------------------
+
+                    st.caption(
+                        "RETAILSIGNAL | OPPORTUNITY DECISION"
+                    )
+
+                    st.subheader(
+                        "Investment Readiness Assessment"
+                    )
+
+                    risk_reasons = []
+
+                    if remaining_capital < 0:
+                        risk_reasons.append(
+                            "The initial inventory and packaging "
+                            "commitment exceeds available capital."
+                        )
+
+                    if contribution_margin is not None:
+                        if contribution_margin <= 0:
+                            risk_reasons.append(
+                                "Estimated variable expenses equal "
+                                "or exceed the selling price."
+                            )
+
+                    if (
+                        conversion_rate is not None
+                        and test_paid_orders == 0
+                    ):
+                        risk_reasons.append(
+                            "The demand test reported no paid orders."
+                        )
+
+                    if risk_reasons:
+
+                        st.error(
+                            "NOT READY — Financial or demand risks "
+                            "require attention before inventory investment."
+                        )
+
+                        st.markdown("**Identified Risk Factors**")
+
+                        for reason in risk_reasons:
+                            st.write(f"• {reason}")
+
+                        st.markdown("**Recommended Next Action**")
+
+                        st.write(
+                            "Review costs, improve the product offer, "
+                            "and conduct additional demand validation "
+                            "before committing capital."
+                        )
+
+                    elif (
+                        contribution_margin is None
+                        or conversion_rate is None
+                    ):
+
+                        st.warning(
+                            "INSUFFICIENT DATA — More pricing or "
+                            "purchasing-demand evidence is needed."
+                        )
+
+                        st.write(
+                            "**Recommended Next Action:** "
+                            "Confirm the proposed selling price and "
+                            "conduct a controlled demand test."
+                        )
+
+                    elif (
+                        test_visitors >= 100
+                        and test_paid_orders >= 10
+                    ):
+
+                        st.success(
+                            "PROMISING — Preliminary financial "
+                            "and illustrative demand criteria are met."
+                        )
+
+                        st.write(
+                            "**Recommended Next Action:** "
+                            "Verify supplier quotations and consider "
+                            "a small controlled pilot."
+                        )
+
+                    else:
+
+                        st.info(
+                            "POTENTIAL — Some positive demand evidence "
+                            "exists, but additional validation is needed."
+                        )
+
+                        st.write(
+                            "**Recommended Next Action:** "
+                            "Continue testing customer purchasing "
+                            "interest before investing in inventory."
+                        )
+
+                    st.caption(
+                        "Preliminary academic assessment using "
+                        "illustrative assumptions. Results are not "
+                        "a guarantee of business success."
+                    )
+
+    # ------------------------------------------------------
+    # PAGE NAVIGATION
+    # ------------------------------------------------------
+
+    st.divider()
+
+    if st.button(
+        "Return to Home",
+        key="discover_return_home",
+    ):
         st.session_state["page"] = "home"
         st.rerun()
-  
-        st.rerun()
+
+# ==========================================================
+# END OF DISCOVER OPPORTUNITIES DASHBOARD
+# ==========================================================
 
 
 
 
 
+
+
+
+# ==========================================================
+# RETAILSIGNAL | EVALUATE MY IDEA
+# Financial Intelligence Dashboard
+# ==========================================================
 
 if st.session_state.get("page") == "evaluate":
-        st.divider()
-        st.header("Evaluate My Idea")
 
-        st.write(
-            "Research your product idea, compare suppliers, "
-            "and evaluate financial feasibility before investing."
-        )
+    st.caption("RETAILSIGNAL  /  FINANCIAL INTELLIGENCE")
+    st.title("Evaluate My Idea")
+
+    st.write(
+        "Turn your product idea into an evidence-based business "
+        "decision. Compare sourcing commitments, analyze unit "
+        "economics, and assess customer demand before investing."
+    )
+
+    st.divider()
+
+    # ------------------------------------------------------
+    # 01 | PRODUCT AND CAPITAL
+    # ------------------------------------------------------
+
+    st.subheader("01 / Product & Capital")
+
+    with st.container(border=True):
 
         product_name = st.text_input(
-            "What product would you like to evaluate?",
-            placeholder="Example: Hydrating Lip Oil"
+            "Product Name",
+            placeholder="Example: Hydrating Lip Oil",
+            key="idea_product_name",
         )
 
-        idea_capital = st.number_input(
-            "How much startup capital do you have available?",
-            min_value=0.0,
-            value=1500.0,
-            step=100.0,
-            format="%.2f",
-            key="idea_capital"
+        col1, col2 = st.columns(2)
+
+        with col1:
+            idea_capital = st.number_input(
+                "Available Startup Capital ($)",
+                min_value=0.0,
+                value=1500.0,
+                step=100.0,
+                key="idea_capital",
+            )
+
+        with col2:
+            idea_selling_price = st.number_input(
+                "Proposed Selling Price ($)",
+                min_value=0.0,
+                value=18.0,
+                step=1.0,
+                key="idea_selling_price",
+            )
+
+    # ------------------------------------------------------
+    # 02 | SUPPLIER INTELLIGENCE
+    # ------------------------------------------------------
+
+    st.subheader("02 / Supplier Intelligence")
+
+    st.caption(
+        "Compare two hypothetical sourcing scenarios. "
+        "Supplier A is used for the main financial assessment."
+    )
+
+    supplier_a_col, supplier_b_col = st.columns(2)
+
+    with supplier_a_col:
+
+        with st.container(border=True):
+
+            st.markdown("#### Supplier A")
+            st.caption("Primary financial scenario")
+
+            idea_supplier_cost = st.number_input(
+                "Unit Cost ($)",
+                min_value=0.0,
+                value=4.50,
+                step=0.50,
+                key="idea_supplier_cost",
+            )
+
+            idea_moq = st.number_input(
+                "Minimum Order Quantity",
+                min_value=1,
+                value=150,
+                step=1,
+                key="idea_moq",
+            )
+
+    with supplier_b_col:
+
+        with st.container(border=True):
+
+            st.markdown("#### Supplier B")
+            st.caption("Alternative sourcing scenario")
+
+            supplier_b_cost = st.number_input(
+                "Unit Cost ($)",
+                min_value=0.0,
+                value=5.00,
+                step=0.50,
+                key="supplier_b_cost",
+            )
+
+            supplier_b_moq = st.number_input(
+                "Minimum Order Quantity",
+                min_value=1,
+                value=100,
+                step=1,
+                key="supplier_b_moq",
+            )
+
+    # ------------------------------------------------------
+    # 03 | ADDITIONAL COSTS
+    # ------------------------------------------------------
+
+    st.subheader("03 / Operating Cost Assumptions")
+
+    with st.container(border=True):
+
+        cost_col1, cost_col2 = st.columns(2)
+
+        with cost_col1:
+            idea_packaging_cost = st.number_input(
+                "Packaging Cost per Unit ($)",
+                min_value=0.0,
+                value=1.75,
+                step=0.25,
+                key="idea_packaging_cost",
+            )
+
+        with cost_col2:
+            idea_other_cost = st.number_input(
+                "Other Variable Costs per Sale ($)",
+                min_value=0.0,
+                value=9.24,
+                step=0.25,
+                key="idea_other_cost",
+            )
+
+        st.caption(
+            "Other variable costs may include estimated "
+            "transaction fees, fulfillment, and marketing "
+            "expenses attributable to each sale."
         )
 
-        idea_selling_price = st.number_input(
-            "What is your proposed selling price per unit?",
-            min_value=0.0,
-            value=18.0,
-            step=1.0,
-            format="%.2f",
-            key="idea_selling_price"
+    # ------------------------------------------------------
+    # 04 | DEMAND VALIDATION
+    # ------------------------------------------------------
+
+    st.subheader("04 / Demand Validation")
+
+    with st.container(border=True):
+
+        st.write(
+            "Enter results from a small customer demand test."
         )
 
-        idea_supplier_cost = st.number_input(
-            "What is your estimated supplier cost per unit?",
-            min_value=0.0,
-            value=4.50,
-            step=0.50,
-            format="%.2f",
-            key="idea_supplier_cost"
+        demand_col1, demand_col2 = st.columns(2)
+
+        with demand_col1:
+            idea_visitors = st.number_input(
+                "Test Visitors",
+                min_value=0,
+                value=0,
+                step=1,
+                key="idea_visitors",
+            )
+
+        with demand_col2:
+            idea_paid_orders = st.number_input(
+                "Paid Orders",
+                min_value=0,
+                value=0,
+                step=1,
+                key="idea_paid_orders",
+            )
+
+        st.caption(
+            "Use actual test observations when available. "
+            "Hypothetical entries are for demonstration only."
         )
 
-        supplier_b_cost = st.number_input(
-            "Supplier B: Estimated cost per unit ($)",
-            min_value=0.0,
-            value=5.00,
-            step=0.50,
-            format="%.2f",
-            key="supplier_b_cost"
-        )
+    st.divider()
 
-        idea_packaging_cost = st.number_input(
-            "What is your estimated packaging cost per unit?",
-            min_value=0.0,
-            value=1.75,
-            step=0.25,
-            format="%.2f",
-            key="idea_packaging_cost"
-        )
+    run_analysis = st.button(
+        "Generate Financial Intelligence Report",
+        type="primary",
+        use_container_width=True,
+        key="run_idea_analysis",
+    )
 
-        supplier_b_moq = st.number_input(
-            "Supplier B: Minimum order quantity",
-            min_value=1,
-            value=100,
-            step=1,
-            key="supplier_b_moq"
-        )
+    # ------------------------------------------------------
+    # FINANCIAL INTELLIGENCE REPORT
+    # ------------------------------------------------------
 
-        idea_moq = st.number_input(
-            "What is the supplier's minimum order quantity?",
-            min_value=1,
-            value=150,
-            step=1,
-            key="idea_moq"
-        )
+    if run_analysis:
 
-        idea_other_cost = st.number_input(
-            "What are your other estimated variable expenses per sale?",
-            min_value=0.0,
-            value=9.24,
-            step=0.25,
-            format="%.2f",
-            key="idea_other_cost"
-        )
+        if not product_name.strip():
+            st.warning(
+                "Enter a product name before generating the report."
+            )
 
-        idea_visitors = st.number_input(
-            "How many visitors participated in your demand test?",
-            min_value=0,
-            value=0,
-            step=1,
-            key="idea_visitors"
-        )
+        elif idea_paid_orders > idea_visitors:
+            st.error(
+                "Paid orders cannot exceed test visitors "
+                "in this simplified conversion model."
+            )
 
-        
-        idea_paid_orders = st.number_input(
-            "How many paid orders did your demand test generate?",
-            min_value=0,
-            value=0,
-            step=1,
-            key="idea_paid_orders"
-        )
+        elif idea_selling_price <= 0:
+            st.warning(
+                "Enter a selling price greater than $0."
+            )
 
+        else:
 
-        if st.button("Evaluate Financial Feasibility"):
+            # ----------------------------------------------
+            # FINANCIAL CALCULATIONS
+            # ----------------------------------------------
+
             idea_initial_cost = (
                 idea_supplier_cost + idea_packaging_cost
             ) * idea_moq
@@ -706,48 +1015,9 @@ if st.session_state.get("page") == "evaluate":
                 supplier_b_cost + idea_packaging_cost
             ) * supplier_b_moq
 
-            st.subheader("Supplier Comparison")
-
-            supplier_col1, supplier_col2 = st.columns(2)
-
-            with supplier_col1:
-                st.metric(
-                    "Supplier A: Initial Commitment",
-                    f"${idea_initial_cost:,.2f}"
-                )
-
-                st.caption(f"Unit cost: ${idea_supplier_cost:,.2f}")
-                st.caption(f"Minimum order: {idea_moq} units")
-
-            with supplier_col2:
-                st.metric(
-                    "Supplier B: Initial Commitment",
-                    f"${supplier_b_initial_cost:,.2f}"
-                )
-
-                st.caption(f"Unit cost: ${supplier_b_cost:,.2f}")
-                st.caption(f"Minimum order: {supplier_b_moq} units")
-
-            if supplier_b_initial_cost < idea_initial_cost:
-                st.info(
-                    "Supplier B requires less upfront capital, "
-                    "although its unit price may be higher. "
-                    "Compare minimum order quantities and total "
-                    "costs before selecting a supplier."
-                )
-            elif supplier_b_initial_cost > idea_initial_cost:
-                st.info(
-                    "Supplier A requires less upfront capital. "
-                    "Review unit prices and minimum order quantities "
-                    "before selecting a supplier."
-                )
-            else:
-                st.info(
-                    "Both suppliers require the same estimated "
-                    "initial inventory and packaging commitment."
-                )
-
-            idea_remaining = idea_capital - idea_initial_cost
+            idea_remaining = (
+                idea_capital - idea_initial_cost
+            )
 
             idea_variable_cost = (
                 idea_supplier_cost
@@ -755,7 +1025,13 @@ if st.session_state.get("page") == "evaluate":
                 + idea_other_cost
             )
 
-            idea_margin = idea_selling_price - idea_variable_cost
+            idea_margin = (
+                idea_selling_price - idea_variable_cost
+            )
+
+            margin_percentage = (
+                idea_margin / idea_selling_price
+            ) * 100
 
             if idea_visitors > 0:
                 idea_conversion_rate = (
@@ -764,176 +1040,415 @@ if st.session_state.get("page") == "evaluate":
             else:
                 idea_conversion_rate = None
 
-            st.subheader("Financial Feasibility Results")
-            
-            
-            
-            col1, col2 = st.columns(2)
+            # ----------------------------------------------
+            # REPORT HEADER
+            # ----------------------------------------------
 
-            with col1:
-                st.metric(
-                    label="Estimated Initial Commitment",
-                    value=f"${idea_initial_cost:,.2f}"
-                )
+            st.divider()
 
-            with col2:
-                st.metric(
-                    label="Remaining Startup Capital",
-                    value=f"${idea_remaining:,.2f}"
-                )
-           
-            st.write("**Capital Utilization**")
+            st.caption(
+                "RETAILSIGNAL  /  OPPORTUNITY ANALYSIS REPORT"
+            )
+
+            st.title("Financial Intelligence Report")
+            st.write(f"**Product:** {product_name}")
+
+            st.caption(
+                "Preliminary assessment based on entered "
+                "financial assumptions and demand evidence."
+            )
+
+            # ----------------------------------------------
+            # EXECUTIVE FINANCIAL METRICS
+            # ----------------------------------------------
+
+            st.subheader("Financial Overview")
+
+            metric1, metric2, metric3 = st.columns(3)
+
+            with metric1:
+                with st.container(border=True):
+                    st.metric(
+                        "Initial Commitment",
+                        f"${idea_initial_cost:,.2f}",
+                    )
+
+            with metric2:
+                with st.container(border=True):
+                    st.metric(
+                        "Capital Remaining",
+                        f"${idea_remaining:,.2f}",
+                    )
+
+            with metric3:
+                with st.container(border=True):
+                    st.metric(
+                        "Contribution Margin",
+                        f"${idea_margin:,.2f}",
+                    )
+
+            st.markdown("#### Capital Utilization")
 
             if idea_capital > 0:
-                utilization = (idea_initial_cost / idea_capital) * 100
-                st.progress(min(utilization / 100, 1.0))
+
+                utilization = (
+                    idea_initial_cost / idea_capital
+                ) * 100
+
+                st.progress(
+                    min(utilization / 100, 1.0)
+                )
+
                 st.caption(
-                    f"{utilization:.1f}% of available startup capital committed."
+                    f"{utilization:.1f}% of available startup "
+                    "capital is required for initial inventory "
+                    "and packaging."
                 )
+
             else:
                 st.warning(
-                    "Capital utilization cannot be calculated with $0 available."
+                    "Capital utilization cannot be calculated "
+                    "with $0 available capital."
                 )
 
+            # ----------------------------------------------
+            # SUPPLIER COMPARISON
+            # ----------------------------------------------
 
-
-            st.write(
-                f"Estimated variable cost per sale: ${idea_variable_cost:,.2f}"
-            )
-
-            
-            st.metric(
-                label="Estimated Contribution Margin Per Sale",
-                value=f"${idea_margin:,.2f}"
-            )
-
-
-            st.subheader("Demand Validation Results")
-
-            if idea_conversion_rate is not None:
-                st.write(
-                    f"Test visitors: {idea_visitors}"
-                )
-                st.write(
-                    f"Reported paid orders: {idea_paid_orders}"
-                )
-                st.write(
-                    f"Observed conversion rate: {idea_conversion_rate:.1f}%"
-                )
-            else:
-                st.warning(
-                    "INSUFFICIENT DATA — No demand-test visitors "
-                    "have been entered."
-                )
-
-            
             st.divider()
-            st.caption("RETAILSIGNAL | OPPORTUNITY DECISION SUMMARY")
-            st.subheader("Investment Readiness Assessment")
+            st.subheader("Supplier Comparison")
 
-            if idea_margin <= 0:
-                st.error(
-                    "NOT READY — Estimated variable expenses equal "
-                    "or exceed the proposed selling price."
+            supplier1, supplier2 = st.columns(2)
+
+            with supplier1:
+
+                with st.container(border=True):
+
+                    st.markdown("#### Supplier A")
+
+                    st.metric(
+                        "Initial Commitment",
+                        f"${idea_initial_cost:,.2f}",
+                    )
+
+                    st.write(
+                        f"**Unit Cost:** "
+                        f"${idea_supplier_cost:,.2f}"
+                    )
+
+                    st.write(
+                        f"**Minimum Order:** "
+                        f"{idea_moq:,} units"
+                    )
+
+            with supplier2:
+
+                with st.container(border=True):
+
+                    st.markdown("#### Supplier B")
+
+                    st.metric(
+                        "Initial Commitment",
+                        f"${supplier_b_initial_cost:,.2f}",
+                    )
+
+                    st.write(
+                        f"**Unit Cost:** "
+                        f"${supplier_b_cost:,.2f}"
+                    )
+
+                    st.write(
+                        f"**Minimum Order:** "
+                        f"{supplier_b_moq:,} units"
+                    )
+
+            
+            difference = abs(
+                idea_initial_cost - supplier_b_initial_cost
+            )
+
+            
+
+
+            difference = abs(
+                idea_initial_cost - supplier_b_initial_cost
+            )
+
+            if supplier_b_initial_cost < idea_initial_cost:
+                st.info(
+                    f"Supplier B requires ${difference:,.2f} "
+                    "less upfront capital. Compare unit costs "
+                    "and order quantities before deciding."
                 )
 
-            elif idea_remaining < 0:
-                st.error(
-                    "NOT READY — Initial inventory and packaging costs "
-                    "exceed available startup capital."
-                )
-
-            elif idea_conversion_rate is None:
-                st.warning(
-                    "INSUFFICIENT DATA — Complete a demand test "
-                    "before making an inventory decision."
-                )
-
-            elif idea_paid_orders == 0:
-                st.error(
-                    "NOT READY — No paid orders were reported. "
-                    "Further demand validation is recommended."
-                )
-
-            elif idea_visitors >= 100 and idea_paid_orders >= 10:
-                st.success(
-                    "PROMISING — Preliminary financial and illustrative "
-                    "demand criteria are met. Consider a controlled pilot "
-                    "after verifying supplier costs and demand evidence."
+            elif idea_initial_cost < supplier_b_initial_cost:
+                st.info(
+                    f"Supplier A requires ${difference:,.2f} "
+                    "less upfront capital. Review the total "
+                    "commitment and unit-price tradeoffs."
                 )
 
             else:
                 st.info(
-                    "POTENTIAL — Some positive demand evidence exists, "
-                    "but further validation is recommended."
+                    "Both suppliers require the same "
+                    "estimated upfront commitment."
                 )
 
             st.caption(
-                "Preliminary assessment using illustrative criteria. "
-                "Results do not guarantee profitability or future sales."
+                "Both scenarios assume the same packaging cost. "
+                "Supplier quotations have not been verified."
             )
 
+            # ----------------------------------------------
+            # UNIT ECONOMICS
+            # ----------------------------------------------
 
+            st.divider()
+            st.subheader("Profitability Analysis")
 
-            st.markdown("#### Decision Rationale")
+            profit1, profit2 = st.columns(2)
 
-            st.write(
-                f"**Financial Evidence:** Estimated contribution margin "
-                f"is ${idea_margin:,.2f} per sale, with "
-                f"${idea_remaining:,.2f} remaining startup capital."
+            with profit1:
+                with st.container(border=True):
+                    st.metric(
+                        "Variable Cost per Sale",
+                        f"${idea_variable_cost:,.2f}",
+                    )
+
+            with profit2:
+                with st.container(border=True):
+                    st.metric(
+                        "Contribution Margin Ratio",
+                        f"{margin_percentage:.1f}%",
+                    )
+
+            st.caption(
+                "Contribution margin is selling price minus "
+                "estimated variable expenses. Fixed costs "
+                "are not included."
             )
+
+            # ----------------------------------------------
+            # DEMAND VALIDATION DASHBOARD
+            # ----------------------------------------------
+
+            st.divider()
+            st.subheader("Demand Validation Dashboard")
 
             if idea_conversion_rate is not None:
-                st.write(
-                    f"**Demand Evidence:** {idea_paid_orders} paid orders "
-                    f"from {idea_visitors} visitors, representing "
-                    f"a {idea_conversion_rate:.1f}% observed conversion rate."
-                )
-            else:
-                st.write(
-                    "**Demand Evidence:** Insufficient information "
-                    "to evaluate purchasing demand."
+
+                demand1, demand2, demand3 = st.columns(3)
+
+                with demand1:
+                    st.metric(
+                        "Test Visitors",
+                        f"{idea_visitors:,}",
+                    )
+
+                with demand2:
+                    st.metric(
+                        "Paid Orders",
+                        f"{idea_paid_orders:,}",
+                    )
+
+                with demand3:
+                    st.metric(
+                        "Conversion Rate",
+                        f"{idea_conversion_rate:.1f}%",
+                    )
+
+                st.progress(
+                    min(idea_conversion_rate / 100, 1.0)
                 )
 
-            st.markdown("#### Recommended Next Action")
+                st.caption(
+                    "Observed paid-order conversion rate "
+                    "within the entered demand-test sample."
+                )
+
+            else:
+
+                st.warning(
+                    "INSUFFICIENT DATA — No demand-test "
+                    "visitors have been entered."
+                )
+
+            # ----------------------------------------------
+            # INVESTMENT READINESS
+            # ----------------------------------------------
+
+            st.divider()
+
+            st.caption(
+                "RETAILSIGNAL  /  EXECUTIVE DECISION SUMMARY"
+            )
+
+            st.subheader("Investment Readiness Assessment")
+
+            risk_reasons = []
 
             if idea_margin <= 0:
-                st.write(
-                    "Review your pricing and reduce variable expenses "
-                    "before investing in inventory."
+                risk_reasons.append(
+                    "Estimated variable expenses equal or "
+                    "exceed the proposed selling price."
                 )
-            elif idea_remaining < 0:
-                st.write(
-                    "Compare suppliers, negotiate a lower minimum order "
-                    "quantity, or reduce upfront costs."
+
+            if idea_remaining < 0:
+                risk_reasons.append(
+                    "Initial inventory and packaging costs "
+                    "exceed available startup capital."
                 )
+
+            if (
+                idea_conversion_rate is not None
+                and idea_paid_orders == 0
+            ):
+                risk_reasons.append(
+                    "The demand test generated no paid orders."
+                )
+
+            if risk_reasons:
+
+                decision = "NOT READY"
+
+                st.error(
+                    "NOT READY — Financial or demand risks "
+                    "must be addressed before investing."
+                )
+
             elif idea_conversion_rate is None:
-                st.write(
-                    "Conduct a small, low-cost demand test to gather "
-                    "evidence of customer purchasing interest."
+
+                decision = "INSUFFICIENT DATA"
+
+                st.warning(
+                    "INSUFFICIENT DATA — Customer purchasing "
+                    "demand has not been established."
                 )
-            elif idea_paid_orders == 0:
-                st.write(
-                    "Revise your product offer or marketing approach "
-                    "and run another controlled demand test before "
-                    "purchasing inventory."
+
+            elif (
+                idea_visitors >= 100
+                and idea_paid_orders >= 10
+            ):
+
+                decision = "PROMISING"
+
+                st.success(
+                    "PROMISING — Preliminary financial "
+                    "and illustrative demand criteria are met."
                 )
-            elif idea_visitors >= 100 and idea_paid_orders >= 10:
-                st.write(
-                    "Consider a small controlled pilot after verifying "
-                    "supplier quotations, fulfillment costs, and demand evidence."
-                )
+
             else:
-                st.write(
-                    "Continue validating customer demand and reviewing "
-                    "cost assumptions before committing to inventory."
+
+                decision = "POTENTIAL"
+
+                st.info(
+                    "POTENTIAL — Positive demand evidence "
+                    "exists, but more validation is recommended."
                 )
 
+            # ----------------------------------------------
+            # DECISION RATIONALE
+            # ----------------------------------------------
 
-         
+            with st.container(border=True):
 
-        if st.button("Return to Home", key="return_evaluate"):
-            st.session_state["page"] = "home"
-            st.rerun()
+                st.markdown("#### Supporting Evidence")
 
-       
+                st.write(
+                    f"**Financial:** Contribution margin is "
+                    f"${idea_margin:,.2f} per sale. "
+                    f"Remaining capital is "
+                    f"${idea_remaining:,.2f}."
+                )
+
+                if idea_conversion_rate is not None:
+
+                    st.write(
+                        f"**Demand:** {idea_paid_orders:,} "
+                        f"paid orders from {idea_visitors:,} "
+                        f"visitors, representing a "
+                        f"{idea_conversion_rate:.1f}% "
+                        "observed conversion rate."
+                    )
+
+                else:
+
+                    st.write(
+                        "**Demand:** Insufficient purchasing "
+                        "evidence is available."
+                    )
+
+                if risk_reasons:
+
+                    st.markdown("#### Identified Risks")
+
+                    for reason in risk_reasons:
+                        st.write(f"• {reason}")
+
+                st.markdown("#### Recommended Next Action")
+
+                if idea_margin <= 0:
+
+                    st.write(
+                        "Review pricing and reduce variable "
+                        "expenses before purchasing inventory."
+                    )
+
+                elif idea_remaining < 0:
+
+                    st.write(
+                        "Compare supplier minimum orders, "
+                        "negotiate costs, or reduce the "
+                        "initial inventory commitment."
+                    )
+
+                elif idea_conversion_rate is None:
+
+                    st.write(
+                        "Conduct a controlled, low-cost "
+                        "demand test before investing."
+                    )
+
+                elif idea_paid_orders == 0:
+
+                    st.write(
+                        "Revise the offer and conduct another "
+                        "demand test before purchasing inventory."
+                    )
+
+                elif decision == "PROMISING":
+
+                    st.write(
+                        "Verify supplier quotations and "
+                        "consider a small controlled pilot."
+                    )
+
+                else:
+
+                    st.write(
+                        "Continue testing customer demand "
+                        "before committing to inventory."
+                    )
+
+            st.caption(
+                "Academic prototype | Illustrative "
+                "rule-based recommendations. "
+                "Not financial or investment advice."
+            )
+
+    # ------------------------------------------------------
+    # RETURN NAVIGATION
+    # ------------------------------------------------------
+
+    st.divider()
+
+    if st.button(
+        "Return to Home",
+        key="return_evaluate",
+    ):
+        st.session_state["page"] = "home"
+        st.rerun()
+
+# ==========================================================
+# END | EVALUATE MY IDEA
+# ==========================================================
